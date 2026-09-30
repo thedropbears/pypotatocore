@@ -1,0 +1,46 @@
+#
+# Use this configuration file to control what RobotPy packages are installed
+# on your robot
+#
+
+[tool.robotpy]
+
+# Version of robotpy this project depends on
+robotpy_version = "2027.0.0a7"
+
+# Which optional robotpy components should be installed?
+# -> equivalent to `pip install robotpy[extra1, ...]
+components = [
+    # "all",
+    # "apriltag",
+    "commands2",
+    # "cscore",
+    # "romi",
+    # "sim",
+    # "xrp",
+]
+
+# Other pip packages to install (including vendor packages)
+requires = [
+    "phoenix6~=26.70a2",
+    # "photonlibpy",
+    # "robotpy-ctre",  # Phoenix 5
+    # "robotpy-navx",
+    # "robotpy-pathplannerlib",
+    # "robotpy-playingwithfusion",
+    # "robotpy-rev",
+    # "sleipnirgroup-choreolib",
+]
+[project]
+name = "pypotatocore"
+version = "0.0.0"
+description = "Python code to run potatobot on SystemCore"
+authors = [{ name = "The Drop Bears", email = "enquiries@thedropbears.org.au" }]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.14,<3.15"
+
+dependencies = [
+    "phoenix6~=26.70a2",
+    "robotpy[commands2]==2027.0.0a7"
+]
