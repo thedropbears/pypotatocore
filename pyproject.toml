@@ -23,6 +23,8 @@ components = [
 # Other pip packages to install (including vendor packages)
 requires = [
     "phoenix6~=26.70a2",
+    "photonlibpy@git+https://github.com/PhotonVision/photonvision.git#subdirectory=photon-lib/py",
+    "gtsam-apriltag@file://../gtsam-apriltag",
     # "photonlibpy",
     # "robotpy-ctre",  # Phoenix 5
     # "robotpy-navx",
@@ -31,6 +33,9 @@ requires = [
     # "robotpy-rev",
     # "sleipnirgroup-choreolib",
 ]
+[tool.uv.sources]
+gtsam-apriltag = { path = "../gtsam-apriltag" }
+
 [project]
 name = "pypotatocore"
 version = "0.0.0"

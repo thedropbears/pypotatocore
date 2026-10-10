@@ -7,8 +7,19 @@
 
 import commands2
 from phoenix6 import HootAutoReplay, HootReplay
+#from phoenix6.swerve import SwerveModuleState
 
 from robotcontainer import RobotContainer
+
+import gtsam_apriltag
+from photonlibpy import PhotonCamera
+from photonlibpy.simulation import PhotonCameraSim, SimCameraProperties, VisionSystemSim
+
+import ntcore
+import wpilib
+import robotpy_fields
+import wpimath
+import telemetry
 
 
 class MyRobot(commands2.TimedCommandRobot):
@@ -40,8 +51,81 @@ class MyRobot(commands2.TimedCommandRobot):
         )
         self.add_periodic(self._time_and_ds_replay.update, self.DEFAULT_PERIOD, -0.001)
 
+        self.field = wpilib.Field2d()
+        self.field_layout = robotpy_fields.get_field(robotpy_fields.FieldId.FRC_2026_REBUILT_WELDED)
+        self.localiser = self.field.get_object("localiser")
+
+        self.camera = PhotonCamera("main")
+        self.estimator = gtsam_apriltag.Estimator(self.field_layout, 2.0)
+        # self.estimator.set_floating_tag_ids([15, 16])
+        self.estimator.set_floating_tag_ids([id if id!=12 else 0 for id in range(32)])
+
+        
+        properties = SimCameraProperties.OV9281_1280_720()
+        # properties = SimCameraProperties.PERFECT_90DEG()
+        self.sim_camera = PhotonCameraSim(self.camera, properties)
+        self.sim_camera.setMaxSightRange(5.0)        
+
+        self.camera_transform = wpimath.Transform3d(0.0,0.0,0.50, wpimath.Rotation3d.from_degrees(0.0, 0.0, 0.0))
+
+        nt = ntcore.NetworkTableInstance.get_default()
+        photon_table = nt.get_table("photonvision")
+        camera_table = photon_table.get_sub_table(self.camera.getName())
+        self.camera_distortion_sub = camera_table.get_double_array_topic("cameraDistortion").subscribe([])
+        self.camera_intrinsic_sub = camera_table.get_double_array_topic("cameraIntrinsics").subscribe([])
+        self.camera_cal: None | gtsam_apriltag.CameraCalibration = None
+
+        self.vision_sim = VisionSystemSim("main")
+        self.vision_sim.addAprilTags(self.field_layout)
+
+        self.vision_sim.addCamera(
+            self.sim_camera,
+            self.camera_transform,
+        )
+        self._swerve_states = None
+
+
+
+
     def robot_periodic(self) -> None:
-        pass
+        state = self._container.drivetrain.get_state()
+        pose = state.pose
+        now = wpilib.Timer.get_timestamp()
+        # print(self._container.drivetrain.get_state())
+        self.field.set_robot_pose(pose)
+        telemetry.log("Field", self.field)
+        self.vision_sim.update(pose)
+
+        if self.camera_cal is None:
+            dist = self.camera_distortion_sub.get()
+            intrinsics = self.camera_intrinsic_sub.get()
+            if dist != [] and intrinsics != []:
+                self.camera_cal = gtsam_apriltag.CameraCalibration(intrinsics, dist)
+
+        if self.camera_cal is not None:
+            result = self.camera.getLatestResult()
+            for tag in result.getTargets():
+                corners = [wpimath.Translation2d(c.x, c.y) for c in tag.detectedCorners]
+                # obs = gtsam_apriltag.CornersObservation(now, tag.fiducialId,
+                obs = gtsam_apriltag.CornersObservation(result.getTimestampSeconds(), tag.fiducialId,
+                                                        corners, self.camera_cal, self.camera_transform)
+                self.estimator.add_observation(obs)
+
+        if self._swerve_states is None:
+            self._swerve_states = state.module_positions
+            self._last_imu = self._container.drivetrain.pigeon2.get_rotation2d()
+
+        else:
+            module_deltas = [wpimath.SwerveModulePosition(new.distance - old.distance, new.angle-old.angle)
+                     for new, old in zip(state.module_positions, self._swerve_states)]
+            delta = self._container.drivetrain.kinematics.to_twist2d(module_deltas)
+            imu_r = self._container.drivetrain.pigeon2.get_rotation2d()
+            imu_delta = imu_r - self._last_imu
+            self._last_imu = imu_r
+            self._swerve_states = state.module_positions
+            self.estimator.update(imu_delta, delta, 0.02, now)
+            self.localiser.set_pose(self.estimator.get_pose())
+            # self.estimator.print()
 
     def disabled_init(self) -> None:
         pass
