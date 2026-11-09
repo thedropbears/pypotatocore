@@ -67,7 +67,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self.sim_camera = PhotonCameraSim(self.camera, properties)
         self.sim_camera.setMaxSightRange(5.0)        
 
-        self.camera_transform = wpimath.Transform3d(0.0,0.0,0.50, wpimath.Rotation3d.from_degrees(0.0, -30.0, 0.0))
+        self.camera_transform = wpimath.Transform3d(0.0,0.0,1.50, wpimath.Rotation3d.from_degrees(0.0, 0.0, 0.0))
 
         nt = ntcore.NetworkTableInstance.get_default()
         photon_table = nt.get_table("photonvision")
