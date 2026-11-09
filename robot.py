@@ -57,8 +57,9 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self.camera = PhotonCamera("main")
         self.estimator = gtsam_apriltag.Estimator(self.field_layout, 2.0)
+        self.estimator.enforce_field_limits(False)
         # self.estimator.set_floating_tag_ids([15, 16])
-        self.estimator.set_floating_tag_ids([id if id!=12 else 0 for id in range(32)])
+        # self.estimator.set_floating_tag_ids([id if id!=12 else 0 for id in range(32)])
 
         
         properties = SimCameraProperties.OV9281_1280_720()
@@ -66,7 +67,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self.sim_camera = PhotonCameraSim(self.camera, properties)
         self.sim_camera.setMaxSightRange(5.0)        
 
-        self.camera_transform = wpimath.Transform3d(0.0,0.0,0.50, wpimath.Rotation3d.from_degrees(0.0, 0.0, 0.0))
+        self.camera_transform = wpimath.Transform3d(0.0,0.0,0.50, wpimath.Rotation3d.from_degrees(0.0, -30.0, 0.0))
 
         nt = ntcore.NetworkTableInstance.get_default()
         photon_table = nt.get_table("photonvision")
@@ -83,9 +84,6 @@ class MyRobot(commands2.TimedCommandRobot):
             self.camera_transform,
         )
         self._swerve_states = None
-
-
-
 
     def robot_periodic(self) -> None:
         state = self._container.drivetrain.get_state()
@@ -112,20 +110,18 @@ class MyRobot(commands2.TimedCommandRobot):
                 self.estimator.add_observation(obs)
 
         if self._swerve_states is None:
-            self._swerve_states = state.module_positions
+            self._swerve_states = state.module_positions.copy()
             self._last_imu = self._container.drivetrain.pigeon2.get_rotation2d()
 
         else:
-            module_deltas = [wpimath.SwerveModulePosition(new.distance - old.distance, new.angle-old.angle)
-                     for new, old in zip(state.module_positions, self._swerve_states)]
-            delta = self._container.drivetrain.kinematics.to_twist2d(module_deltas)
+            delta = self._container.drivetrain.kinematics.to_twist2d(self._swerve_states, state.module_positions)
             imu_r = self._container.drivetrain.pigeon2.get_rotation2d()
             imu_delta = imu_r - self._last_imu
             self._last_imu = imu_r
-            self._swerve_states = state.module_positions
+            self._swerve_states = state.module_positions.copy()
             self.estimator.update(imu_delta, delta, 0.02, now)
-            self.localiser.set_pose(self.estimator.get_pose())
-            # self.estimator.print()
+        self.localiser.set_pose(self.estimator.get_pose())
+
 
     def disabled_init(self) -> None:
         pass

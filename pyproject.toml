@@ -6,7 +6,7 @@
 [tool.robotpy]
 
 # Version of robotpy this project depends on
-robotpy_version = "2027.0.0a7"
+robotpy_version = "2027.0.0a8"
 
 # Which optional robotpy components should be installed?
 # -> equivalent to `pip install robotpy[extra1, ...]
