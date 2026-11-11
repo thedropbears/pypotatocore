@@ -292,12 +292,14 @@ source = { virtual = "." }
 dependencies = [
     { name = "phoenix6" },
     { name = "robotpy", extra = ["commands2"] },
+    { name = "robotpy-fields" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "phoenix6", specifier = "~=26.70a2" },
     { name = "robotpy", extras = ["commands2"], specifier = "==2027.0.0a8" },
+    { name = "robotpy-fields", specifier = "==2027.0.0a8" },
 ]
 
 [[package]]
@@ -379,6 +381,23 @@ wheels = [
 ]
 
 [[package]]
+name = "robotpy-fields"
+version = "2027.0.0a8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "robotpy-native-fields" },
+    { name = "robotpy-wpimath" },
+    { name = "robotpy-wpiutil" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/01/e7e30cd3efb3075b63cc164690b92c3d9811a1ff670c0c3efedbcb49da2b/robotpy_fields-2027.0.0a8-cp315-cp315-macosx_13_0_arm64.whl", hash = "sha256:689a6a870db0b1104832ed25178aebb5399c18f7d81a347ee535190f02968a03", size = 172138, upload-time = "2026-11-01T05:41:18.836Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/62/9ce05af7c0c756e2f2562f5009dbf286e38e1a35a035ba1c106f6fc0f9f6/robotpy_fields-2027.0.0a8-cp315-cp315-macosx_13_0_x86_64.whl", hash = "sha256:b9d9bcd0481e667dca099d525f83c21c53957784ee9db581a3357cc37ca0d79b", size = 179133, upload-time = "2026-11-01T05:41:20.15Z" },
+    { url = "https://files.pythonhosted.org/packages/59/9d/953d5897c7a576ecf2e116ed0f389a76679d55f62a0afd2d09bddaebccc4/robotpy_fields-2027.0.0a8-cp315-cp315-manylinux_2_39_aarch64.whl", hash = "sha256:ad24262fdddbf647c06a9cea76fbac3cd677dfd2589febd4b0804ab2decef2db", size = 199604, upload-time = "2026-11-01T05:41:21.322Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/f1/f9aa437bf1ba42bb0b935a892a6e41be41ac678714bf152ece7e75453b2a/robotpy_fields-2027.0.0a8-cp315-cp315-manylinux_2_39_x86_64.whl", hash = "sha256:d6724e9f14671b631924fd6f6a098e622a117dfde2ec4f353a1a99da2cf03515", size = 208723, upload-time = "2026-11-01T05:41:22.495Z" },
+    { url = "https://files.pythonhosted.org/packages/24/be/4ab6ee6d3997e34768e1f34b6789217f85e1668ee0ba58fe5cee1f45fbe9/robotpy_fields-2027.0.0a8-cp315-cp315-win_amd64.whl", hash = "sha256:1114aeff0e532b8b52d8d25a5f07ba6f53eeaa1011673f08c7153943caca9c85", size = 146099, upload-time = "2026-11-01T05:41:23.673Z" },
+]
+
+[[package]]
 name = "robotpy-hal"
 version = "2027.0.0a8"
 source = { registry = "https://pypi.org/simple" }
@@ -444,6 +463,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/00/88fd2dd341c3406d4620769c354ac4f77b41979ed3541be3c16e2e02df2a/robotpy_native_datalog-2027.0.0a8-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:9f985f89eb6cffc22b93074c3821b5005d3a5d4a6a490cb1bffc6c96d81d82de", size = 147883, upload-time = "2026-11-01T05:43:06.319Z" },
     { url = "https://files.pythonhosted.org/packages/94/8f/61bfddb78420e762f0d56592060d0529969d620ec78783126161915f9306/robotpy_native_datalog-2027.0.0a8-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:d30b98a65c982635c857f07bcb2b9b3af7326dc2d5fcd858532d50360970dbf9", size = 159514, upload-time = "2026-11-01T05:43:07.669Z" },
     { url = "https://files.pythonhosted.org/packages/43/56/3687a693a8cc060fb1380b25ac2d16e57893e7cb300b079c03006b560bf5/robotpy_native_datalog-2027.0.0a8-py3-none-win_amd64.whl", hash = "sha256:2232cc41fec66b6576cbdf779fb5e7430ee91d77c75c1c1b6d07a39e7649498e", size = 292563, upload-time = "2026-11-01T05:43:09.142Z" },
+]
+
+[[package]]
+name = "robotpy-native-fields"
+version = "2027.0.0a8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "robotpy-native-wpimath" },
+    { name = "robotpy-native-wpiutil" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/22/9d20b65e806ea00017bf892c3bfb55d3ecd00b396b5495fdc525628c5d84/robotpy_native_fields-2027.0.0a8-py3-none-macosx_13_0_universal2.whl", hash = "sha256:46197c3ad6e58ca7a1ce4f5287d7e8c008bb8b8c1b4945e16076f92565550cb9", size = 188458, upload-time = "2026-11-01T05:43:10.745Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/3a/a71ce5200fb0e073d5cac7df906ef160c6b2271f0b99dbbb6b46a3ce0a86/robotpy_native_fields-2027.0.0a8-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:67489b1e59c973afcde9c1f6a50de2e2cc25a54e7a7b276ddff476d7ee2ffae8", size = 108955, upload-time = "2026-11-01T05:43:12.194Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/12/9be3cf3892520431b5aee42e92459db565a14a182d923d20a31bd881fdef/robotpy_native_fields-2027.0.0a8-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:a185b4db283736fa450d0617d0aaa6cc66ab776deeb829378036b059561ce77a", size = 112705, upload-time = "2026-11-01T05:43:13.46Z" },
+    { url = "https://files.pythonhosted.org/packages/11/06/f48a23522e26cc983d2c9dae5b25b58d5f60141819f169afb1efc11828f0/robotpy_native_fields-2027.0.0a8-py3-none-win_amd64.whl", hash = "sha256:fab9ad8d0495edc25a479c65207aaf542c5e6be8230ae8d95280106e3bca05eb", size = 255559, upload-time = "2026-11-01T05:43:14.834Z" },
 ]
 
 [[package]]
