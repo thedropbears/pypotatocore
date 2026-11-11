@@ -3,7 +3,7 @@ from logging import Logger
 
 import ntcore
 import wpilib
-from magicbot import feedback, tunable
+from magicbot import feedback
 from phoenix6.swerve import requests
 from phoenix6.swerve.swerve_module import SwerveModule
 from wpimath import (
@@ -13,7 +13,7 @@ from wpimath import (
     SwerveModulePosition,
     SwerveModuleVelocity,
 )
-from wpimath.units import rotations_to_radians, seconds
+from wpimath.units import seconds
 
 from swerves.drivetrain import TunerSwerveDrivetrain
 from swerves.tuner_constants import TunerConstants
@@ -24,7 +24,6 @@ from utilities.position import TeamPoses
 class ChassisComponent:
     field: wpilib.Field2d
     logger: Logger
-    max_angular_rate = tunable(rotations_to_radians(0.75))
 
     LINEAR_ODOMETRY_STD_DEVS = 0.003
     ROTATION_ODOMETRY_STD_DEVS = 0.05
@@ -41,8 +40,6 @@ class ChassisComponent:
                 tuner_constants.back_right,
             ],
         )
-
-        self.max_speed = tuner_constants.speed_at_12_volts  # TODO update this
 
         self.phoenix_swerve.set_state_std_devs(
             (
@@ -108,7 +105,10 @@ class ChassisComponent:
         """Sets pose to current pose but with a heading of forwards"""
         cur_pose = self.get_pose()
         self.set_pose(
-            Pose2d(cur_pose.translation(), Rotation2d(math.pi if is_red() else 0))
+            Pose2d(
+                cur_pose.translation(),
+                Rotation2d(math.pi if self.on_red_alliance else 0),
+            )
         )
 
     def set_pose(self, pose: Pose2d) -> None:

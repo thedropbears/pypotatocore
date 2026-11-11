@@ -17,10 +17,6 @@ class MyRobot(MagicRobot):
     max_speed = tunable(0.8)  # m/s
     max_spin_rate = tunable(2.5)  # rad/s
 
-    def __init__(self) -> None:
-
-        super().__init__()
-
     def create_objects(self) -> None:
         self.gamepad = XboxController(0)
 
@@ -31,18 +27,9 @@ class MyRobot(MagicRobot):
     def robot_periodic(self) -> None:
         telemetry.log("Field", self.field)
 
-    def disabled_init(self) -> None:
-        pass
-
     def disabled_periodic(self) -> None:
         self.chassis.update_alliance()
         self.chassis.update_odometry()
-
-    def disabled_exit(self) -> None:
-        pass
-
-    def teleop_init(self) -> None:
-        pass
 
     def teleop_periodic(self) -> None:
         drive_speed = self.max_speed
@@ -60,9 +47,6 @@ class MyRobot(MagicRobot):
             self.chassis.drive_robot(drive_x, drive_y, drive_z)
         else:
             self.chassis.drive_field(drive_x, drive_y, drive_z)
-
-    def teleop_exit(self) -> None:
-        pass
 
     def simulation_init(self) -> None:
         # Called once, after create_objects and component injection
