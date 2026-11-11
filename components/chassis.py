@@ -75,7 +75,7 @@ class ChassisComponent:
             else TeamPoses.BLUE_TEST_POSE
         )
         self.phoenix_swerve.set_operator_forward_direction(
-            Rotation2d() if self.on_red_alliance else Rotation2d().from_degrees(180)
+            Rotation2d.from_degrees(180) if self.on_red_alliance else Rotation2d()
         )
 
     def update_alliance(self) -> None:
