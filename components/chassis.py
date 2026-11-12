@@ -1,7 +1,6 @@
 import math
 from logging import Logger
 
-import ntcore
 import wpilib
 from magicbot import feedback
 from phoenix6.swerve import requests
@@ -10,11 +9,10 @@ from wpimath import (
     ChassisVelocities,
     Pose2d,
     Rotation2d,
-    SwerveModulePosition,
-    SwerveModuleVelocity,
 )
 from wpimath.units import seconds
 
+from swerve_telemetry import SwerveTelemetry
 from swerves.drivetrain import TunerSwerveDrivetrain
 from swerves.tuner_constants import TunerConstants
 from utilities.game import is_red
@@ -59,7 +57,7 @@ class ChassisComponent:
 
         self.request = requests.Idle()
 
-        self.initialise_telemetry()
+        self.telemetry = SwerveTelemetry(tuner_constants.speed_at_12_volts)
 
     def setup(self) -> None:
         self.field_obj = self.field.get_object("fused_pose")
@@ -119,7 +117,7 @@ class ChassisComponent:
     def update_odometry(self) -> None:
         drivetrain_state = self.phoenix_swerve.get_state()
         self.field_obj.set_pose(drivetrain_state.pose)
-        self.telemeterise(drivetrain_state)
+        self.telemetry.telemeterize(drivetrain_state)
 
     def drive_field(self, vx: float, vy: float, omega: float) -> None:
         self.request = self.prepare_request(self.field_request, vx, vy, omega)
@@ -174,42 +172,3 @@ class ChassisComponent:
                 self.get_velocity().to_twist2d(tm_diff).exp()
             )
         )
-
-    def initialise_telemetry(self) -> None:
-        nt = ntcore.NetworkTableInstance.get_default().get_table("/components/chassis")
-        self.drive_state_table = nt.get_sub_table("module_states")
-        self.drive_pose = self.drive_state_table.get_struct_topic(
-            "Pose", Pose2d
-        ).publish()
-        self.drive_velocity = self.drive_state_table.get_struct_topic(
-            "Velocity", ChassisVelocities
-        ).publish()
-        self.drive_module_velocities = self.drive_state_table.get_struct_array_topic(
-            "ModuleVelocities", SwerveModuleVelocity
-        ).publish()
-        self.drive_module_targets = self.drive_state_table.get_struct_array_topic(
-            "ModuleTargets", SwerveModuleVelocity
-        ).publish()
-        self.drive_module_positions = self.drive_state_table.get_struct_array_topic(
-            "ModulePositions", SwerveModulePosition
-        ).publish()
-        self.drive_timestamp = self.drive_state_table.get_double_topic(
-            "Timestamp"
-        ).publish()
-        self.drive_odometry_frequency = self.drive_state_table.get_double_topic(
-            "OdometryFrequency"
-        ).publish()
-
-    def telemeterise(self, state: TunerSwerveDrivetrain.SwerveDriveState):
-        """
-        Accept the swerve drive state and telemeterise it to NetworkTables
-        """
-        # Telemeterise the swerve drive state
-        self.drive_pose.set(state.pose)
-        self.drive_velocity.set(state.velocity)
-        self.drive_module_velocities.set(state.module_velocities)
-        self.drive_module_targets.set(state.module_targets)
-        self.drive_module_positions.set(state.module_positions)
-        self.drive_timestamp.set(state.timestamp)
-        if state.odometry_period != 0: 
-            self.drive_odometry_frequency.set(1.0 / state.odometry_period)
