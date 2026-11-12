@@ -13,8 +13,9 @@ from wpilib import RobotState
 from wpimath import ChassisVelocities, Rotation2d
 from wpimath.units import rotations_to_radians
 
-from generated.tuner_constants import TunerConstants
+from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from swerve_telemetry import SwerveTelemetry
+from swerves.potatobot import tuner_constants
 
 
 class RobotContainer:
@@ -27,7 +28,7 @@ class RobotContainer:
 
     def __init__(self) -> None:
         self._max_speed = (
-            1.0 * TunerConstants.speed_at_12_volts
+            1.0 * tuner_constants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
         self._max_angular_rate = rotations_to_radians(
             0.75
@@ -56,7 +57,15 @@ class RobotContainer:
 
         self._joystick = CommandXboxController(0)
 
-        self.drivetrain = TunerConstants.create_drivetrain()
+        self.drivetrain = CommandSwerveDrivetrain(
+            tuner_constants.drivetrain_constants,
+            [
+                tuner_constants.front_left,
+                tuner_constants.front_right,
+                tuner_constants.back_left,
+                tuner_constants.back_right,
+            ],
+        )
 
         # Configure the button bindings
         self.configure_button_bindings()

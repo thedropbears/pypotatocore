@@ -7,7 +7,7 @@ from wpilib import Alliance, MatchState, Notifier, RobotController, RobotState
 from wpilib.sysid import SysIdRoutineLog
 from wpimath import Rotation2d
 
-from generated.tuner_constants import TunerSwerveDrivetrain
+from swerves.drivetrain import TunerSwerveDrivetrain
 
 
 class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
