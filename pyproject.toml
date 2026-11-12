@@ -13,7 +13,7 @@ robotpy_version = "2027.0.0a8"
 components = [
     # "all",
     # "apriltag",
-    "commands2",
+    # "commands2",
     # "cscore",
     # "romi",
     # "sim",
@@ -22,7 +22,7 @@ components = [
 
 # Other pip packages to install (including vendor packages)
 requires = [
-    "commands3 @ git+https://github.com/zachwaffle4/commandsv3-python.git@d07fb4c9bc4699b08d75c2ea7b0a3e07745f3d89",
+    "commands3 @ git+https://github.com/zachwaffle4/commandsv3-python.git@94d446a7802de31290781259d2c44f4787559158",
     "phoenix6~=26.70a2",
     # "photonlibpy",
     # "robotpy-ctre",  # Phoenix 5
@@ -34,7 +34,7 @@ requires = [
 ]
 
 [tool.uv.sources]
-commands3 = { git = "https://github.com/zachwaffle4/commandsv3-python.git" }
+commands3 = { git = "https://github.com/zachwaffle4/commandsv3-python.git", rev = "94d446a7802de31290781259d2c44f4787559158" }
 
 [project]
 name = "pypotatocore"
@@ -48,5 +48,13 @@ requires-python = ">=3.15,<3.16"
 dependencies = [
     "commands3",
     "phoenix6~=26.70a2",
-    "robotpy[commands2]==2027.0.0a8",
+    "robotpy==2027.0.0a8",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+]
+
+[tool.mypy]
+follow_untyped_imports = true

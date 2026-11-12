@@ -5,18 +5,14 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
+import commands3
+import wpilib
 from phoenix6 import HootAutoReplay, HootReplay
 
 from robotcontainer import RobotContainer
 
 
-class MyRobot(commands2.TimedCommandRobot):
-    """
-    Command v2 robots are encouraged to inherit from TimedCommandRobot, which
-    has an implementation of robot_periodic which runs the scheduler for you
-    """
-
+class MyRobot(wpilib.TimedRobot):
     def __init__(self) -> None:
         """
         This function is run when the robot is first started up and should be used for any
@@ -26,7 +22,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
         self._replay = HootReplay("./logs/example.hoot")
 
-        self._autonomous_command: commands2.Command | None = None
+        self._autonomous_command: commands3.Command | None = None
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
         self._container = RobotContainer()
@@ -41,13 +37,14 @@ class MyRobot(commands2.TimedCommandRobot):
         self.add_periodic(self._time_and_ds_replay.update, self.DEFAULT_PERIOD, -0.001)
 
     def robot_periodic(self) -> None:
-        pass
+        self._container.periodic()
+        commands3.Scheduler.get_default().run()
 
     def disabled_init(self) -> None:
         pass
 
     def disabled_periodic(self) -> None:
-        pass
+        self._container.disabled_periodic()
 
     def disabled_exit(self) -> None:
         pass
@@ -57,7 +54,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self._autonomous_command = self._container.get_autonomous_command()
 
         if self._autonomous_command:
-            commands2.CommandScheduler.get_instance().schedule(self._autonomous_command)
+            commands3.Scheduler.get_default().schedule(self._autonomous_command)
 
     def autonomous_periodic(self) -> None:
         pass
@@ -71,7 +68,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # continue until interrupted by another command, remove
         # this line or comment it out.
         if self._autonomous_command:
-            commands2.CommandScheduler.get_instance().cancel(self._autonomous_command)
+            commands3.Scheduler.get_default().cancel(self._autonomous_command)
 
     def teleop_periodic(self) -> None:
         pass
@@ -81,7 +78,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def utility_init(self) -> None:
         # Cancels all running commands at the start of test mode
-        commands2.CommandScheduler.get_instance().cancel_all()
+        commands3.Scheduler.get_default().cancel_all()
 
     def utility_periodic(self) -> None:
         pass

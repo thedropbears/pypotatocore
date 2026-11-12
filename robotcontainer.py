@@ -4,10 +4,9 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
-from commands2 import cmd
-from commands2.button import CommandXboxController, Trigger
-from commands2.sysid import SysIdRoutine
+from commands3 import LOWEST_PRIORITY, Command, Trigger
+from commands3.button import CommandXboxController
+from commands3.sysid import SysIdRoutine
 from phoenix6 import swerve
 from wpilib import RobotState
 from wpimath import ChassisVelocities, Rotation2d
@@ -56,6 +55,7 @@ class RobotContainer:
         self._logger = SwerveTelemetry(self._max_speed)
 
         self._joystick = CommandXboxController(0)
+        self._idle = swerve.requests.Idle()
 
         self.drivetrain = CommandSwerveDrivetrain(
             tuner_constants.drivetrain_constants,
@@ -92,23 +92,23 @@ class RobotContainer:
                     .with_rotational_rate(
                         -self._joystick.get_right_x() * self._max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
-                )
+                ),
+                name="Teleop Drive",
+                priority=LOWEST_PRIORITY,
             )
         )
 
-        # Idle while the robot is disabled. This ensures the configured
-        # neutral mode is applied to the drive motors while disabled.
-        idle = swerve.requests.Idle()
-        Trigger(RobotState.is_disabled).while_true(
-            self.drivetrain.apply_request(lambda: idle).ignoring_disable(True)
+        self._joystick.a().while_true(
+            self.drivetrain.apply_request(lambda: self._brake, name="Brake")
         )
-
-        self._joystick.a().while_true(self.drivetrain.apply_request(lambda: self._brake))
         self._joystick.b().while_true(
             self.drivetrain.apply_request(
                 lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.get_left_y(), -self._joystick.get_left_x())
-                )
+                    Rotation2d(
+                        -self._joystick.get_left_y(), -self._joystick.get_left_x()
+                    )
+                ),
+                name="Point Wheels",
             )
         )
 
@@ -129,14 +129,27 @@ class RobotContainer:
 
         # reset the field-centric heading on left bumper press
         self._joystick.left_bumper().on_true(
-            self.drivetrain.run_once(self.drivetrain.seed_field_centric)
+            self.drivetrain.run(self._seed_field_centric).named(
+                "Reset Field Centric Heading"
+            )
         )
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
 
-    def get_autonomous_command(self) -> commands2.Command:
+    async def _seed_field_centric(self) -> None:
+        self.drivetrain.seed_field_centric()
+
+    def periodic(self) -> None:
+        self.drivetrain.periodic()
+
+    def disabled_periodic(self) -> None:
+        # commands3 cancels mechanism commands while disabled. Continue
+        # applying the safe idle request without scheduling a command.
+        self.drivetrain.set_control(self._idle)
+
+    def get_autonomous_command(self) -> Command:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 
@@ -144,21 +157,19 @@ class RobotContainer:
         """
         # Simple drive forward auton
         idle = swerve.requests.Idle()
-        return cmd.sequence(
+        return Command.sequence(
             # Reset our field centric heading to match the robot
             # facing away from our alliance station wall (0 deg).
-            self.drivetrain.run_once(
-                lambda: self.drivetrain.seed_field_centric(Rotation2d.from_degrees(0))
+            self.drivetrain.run(self._seed_field_centric).named(
+                "Reset Field Centric Heading"
             ),
             # Then slowly drive forward (away from us) for 2 seconds.
             self.drivetrain.apply_request(
-                lambda: (
-                    self._auto_drive.with_velocity(
-                        ChassisVelocities(1.0, 0.0, 0.0)
-                    )
-                )
-            )
-            .with_timeout(2.0),
+                lambda: self._auto_drive.with_velocity(
+                    ChassisVelocities(1.0, 0.0, 0.0)
+                ),
+                name="Autonomous Drive",
+            ).with_timeout(2.0),
             # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle)
-        )
+            self.drivetrain.apply_request(lambda: idle, name="Autonomous Idle"),
+        ).named("Simple Drive Forward Autonomous")
