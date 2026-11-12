@@ -22,6 +22,7 @@ components = [
 
 # Other pip packages to install (including vendor packages)
 requires = [
+    "commands3 @ git+https://github.com/zachwaffle4/commandsv3-python.git@d07fb4c9bc4699b08d75c2ea7b0a3e07745f3d89",
     "phoenix6~=26.70a2",
     # "photonlibpy",
     # "robotpy-ctre",  # Phoenix 5
@@ -31,6 +32,9 @@ requires = [
     # "robotpy-rev",
     # "sleipnirgroup-choreolib",
 ]
+
+[tool.uv.sources]
+commands3 = { git = "https://github.com/zachwaffle4/commandsv3-python.git" }
 
 [project]
 name = "pypotatocore"
@@ -42,6 +46,7 @@ license = { text = "MIT" }
 requires-python = ">=3.15,<3.16"
 
 dependencies = [
+    "commands3",
     "phoenix6~=26.70a2",
-    "robotpy[commands2]==2027.0.0a8"
+    "robotpy[commands2]==2027.0.0a8",
 ]
