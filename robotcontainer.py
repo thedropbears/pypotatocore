@@ -1,16 +1,4 @@
-#
-# Copyright (c) FIRST and other WPILib contributors.
-# Open Source Software; you can modify and/or share it under the terms of
-# the WPILib BSD license file in the root directory of this project.
-#
-
-from commands3 import LOWEST_PRIORITY, Command, Trigger
-from commands3.button import CommandXboxController
-from commands3.sysid import SysIdRoutine
 from phoenix6 import swerve
-from wpilib import RobotState
-from wpimath import ChassisVelocities, Rotation2d
-from wpimath.units import rotations_to_radians
 
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from swerve_telemetry import SwerveTelemetry
@@ -18,43 +6,11 @@ from swerves.potatobot import tuner_constants
 
 
 class RobotContainer:
-    """
-    This class is where the bulk of the robot should be declared. Since Command-based is a
-    "declarative" paradigm, very little robot logic should actually be handled in the :class:`.Robot`
-    periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
-    subsystems, commands, and button mappings) should be declared here.
-    """
+    # TODO: move everything left here into robot.py
 
     def __init__(self) -> None:
-        self._max_speed = (
-            1.0 * tuner_constants.speed_at_12_volts
-        )  # speed_at_12_volts desired top speed
-        self._max_angular_rate = rotations_to_radians(
-            0.75
-        )  # 3/4 of a rotation per second max angular velocity
+        self._logger = SwerveTelemetry(tuner_constants.speed_at_12_volts)
 
-        # Setting up bindings for necessary control of the swerve drive platform
-        self._drive = (
-            swerve.requests.FieldCentric()
-            .with_drive_request_type(
-                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
-            )  # Use open-loop control for drive motors
-        )
-        self._auto_drive = (
-            swerve.requests.ApplyFieldVelocity()
-            .with_forward_perspective(
-                swerve.requests.ForwardPerspectiveValue.OPERATOR_PERSPECTIVE
-            )
-            .with_drive_request_type(
-                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
-            )
-        )
-        self._brake = swerve.requests.SwerveDriveBrake()
-        self._point = swerve.requests.PointWheelsAt()
-
-        self._logger = SwerveTelemetry(self._max_speed)
-
-        self._joystick = CommandXboxController(0)
         self._idle = swerve.requests.Idle()
 
         self.drivetrain = CommandSwerveDrivetrain(
@@ -67,79 +23,9 @@ class RobotContainer:
             ],
         )
 
-        # Configure the button bindings
-        self.configure_button_bindings()
-
-    def configure_button_bindings(self) -> None:
-        """
-        Use this method to define your button->command mappings. Buttons can be created by
-        instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
-        and then passing it to a JoystickButton.
-        """
-
-        # Note that X is defined as forward according to WPILib convention,
-        # and Y is defined as to the left according to WPILib convention.
-        self.drivetrain.set_default_command(
-            # Drivetrain will execute this command periodically
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(
-                        -self._joystick.get_left_y() * self._max_speed
-                    )  # Drive forward with negative Y (forward)
-                    .with_velocity_y(
-                        -self._joystick.get_left_x() * self._max_speed
-                    )  # Drive left with negative X (left)
-                    .with_rotational_rate(
-                        -self._joystick.get_right_x() * self._max_angular_rate
-                    )  # Drive counterclockwise with negative X (left)
-                ),
-                name="Teleop Drive",
-                priority=LOWEST_PRIORITY,
-            )
-        )
-
-        self._joystick.a().while_true(
-            self.drivetrain.apply_request(lambda: self._brake, name="Brake")
-        )
-        self._joystick.b().while_true(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(
-                        -self._joystick.get_left_y(), -self._joystick.get_left_x()
-                    )
-                ),
-                name="Point Wheels",
-            )
-        )
-
-        # Run SysId routines when holding back (view)/start (menu) and X/Y.
-        # Note that each routine should be run exactly once in a single log.
-        (self._joystick.view() & self._joystick.y()).while_true(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.FORWARD)
-        )
-        (self._joystick.view() & self._joystick.x()).while_true(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.REVERSE)
-        )
-        (self._joystick.menu() & self._joystick.y()).while_true(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.FORWARD)
-        )
-        (self._joystick.menu() & self._joystick.x()).while_true(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.REVERSE)
-        )
-
-        # reset the field-centric heading on left bumper press
-        self._joystick.left_bumper().on_true(
-            self.drivetrain.run(self._seed_field_centric).named(
-                "Reset Field Centric Heading"
-            )
-        )
-
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
-
-    async def _seed_field_centric(self) -> None:
-        self.drivetrain.seed_field_centric()
 
     def periodic(self) -> None:
         self.drivetrain.periodic()
@@ -148,28 +34,3 @@ class RobotContainer:
         # commands3 cancels mechanism commands while disabled. Continue
         # applying the safe idle request without scheduling a command.
         self.drivetrain.set_control(self._idle)
-
-    def get_autonomous_command(self) -> Command:
-        """
-        Use this to pass the autonomous command to the main {@link Robot} class.
-
-        :returns: the command to run in autonomous
-        """
-        # Simple drive forward auton
-        idle = swerve.requests.Idle()
-        return Command.sequence(
-            # Reset our field centric heading to match the robot
-            # facing away from our alliance station wall (0 deg).
-            self.drivetrain.run(self._seed_field_centric).named(
-                "Reset Field Centric Heading"
-            ),
-            # Then slowly drive forward (away from us) for 2 seconds.
-            self.drivetrain.apply_request(
-                lambda: self._auto_drive.with_velocity(
-                    ChassisVelocities(1.0, 0.0, 0.0)
-                ),
-                name="Autonomous Drive",
-            ).with_timeout(2.0),
-            # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle, name="Autonomous Idle"),
-        ).named("Simple Drive Forward Autonomous")
