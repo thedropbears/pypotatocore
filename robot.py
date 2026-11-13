@@ -24,6 +24,9 @@ class MyRobot(MagicRobot):
 
         self.chassis_tuner_constants = tuner_constants
 
+        self.sim_loop_timer = Timer()
+        self.sim_loop_timer.start()
+
     def robot_periodic(self) -> None:
         telemetry.log("Field", self.field)
 
@@ -49,12 +52,10 @@ class MyRobot(MagicRobot):
             self.chassis.drive_field(drive_x, drive_y, drive_z)
 
     def simulation_init(self) -> None:
-        # Called once, after create_objects and component injection
-        self._last_sim_time = Timer.get_timestamp()
+        self.sim_loop_timer.reset()
 
     def simulation_periodic(self) -> None:
-        now = Timer.get_timestamp()
-        tm_diff = now - self._last_sim_time
-        self._last_sim_time = now
+        tm_diff = self.sim_loop_timer.get()
+        self.sim_loop_timer.reset()
 
         self.chassis.sim_periodic(tm_diff)
