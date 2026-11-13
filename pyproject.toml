@@ -23,7 +23,6 @@ components = [
 # Other pip packages to install (including vendor packages)
 requires = [
     "phoenix6~=26.70a2",
-    "robotpy-fields==2027.0.0a8",
     # "photonlibpy",
     # "robotpy-ctre",  # Phoenix 5
     # "robotpy-navx",
@@ -44,6 +43,5 @@ requires-python = ">=3.15,<3.16"
 
 dependencies = [
     "phoenix6~=26.70a2",
-    "robotpy-fields==2027.0.0a8",
     "robotpy==2027.0.0a8"
 ]
