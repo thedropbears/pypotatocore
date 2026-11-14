@@ -23,7 +23,8 @@ components = [
 # Other pip packages to install (including vendor packages)
 requires = [
     "phoenix6~=26.70a2",
-    # "photonlibpy",
+    "photonlibpy==2027.0.0a8",
+    "robotpy-fields==2027.0.0a8",
     # "robotpy-ctre",  # Phoenix 5
     # "robotpy-navx",
     # "robotpy-pathplannerlib",
@@ -43,5 +44,8 @@ requires-python = ">=3.15,<3.16"
 
 dependencies = [
     "phoenix6~=26.70a2",
-    "robotpy==2027.0.0a8"
+    "robotpy==2027.0.0a8",
+    "photonlibpy @ /home/lucien/git/photonvision/photon-lib/py/dist/photonlibpy-2027.0.0a8-py3-none-any.whl",
+    "robotpy-fields==2027.0.0a8",
+    "robotpy-rev==2027.0.0a9",
 ]

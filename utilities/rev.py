@@ -14,5 +14,5 @@ def configure_through_bore_encoder(
         freq: The assumed frequency of the encoder in Hz. Defaults to
             the encoder's nominal frequency per the datasheet.
     """
-    enc.setAssumedFrequency(freq)
-    enc.setDutyCycleRange(1 / 1025, 1024 / 1025)
+    enc.set_assumed_frequency(freq)
+    enc.set_duty_cycle_range(1 / 1025, 1024 / 1025)

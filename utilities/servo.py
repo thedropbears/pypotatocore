@@ -2,13 +2,14 @@ import math
 from dataclasses import dataclass
 
 import wpilib
-from utilities.functions import clamp
-from utilities.rev import configure_through_bore_encoder
 from wpilib.simulation import (
     DutyCycleEncoderSim,
     PWMSim,
 )
 from wpimath import Rotation2d, TimeInterpolatableRotation2dBuffer, units
+
+from utilities.functions import clamp
+from utilities.rev import configure_through_bore_encoder
 
 
 @dataclass
@@ -88,7 +89,9 @@ class ServoTurret:
             self._override_command = None
         else:
             self.servo.set(self._angle_to_command(self.target_angle))
-        self._history.addSample(wpilib.Timer.getFPGATimestamp(), self.rotation())
+        self._history.add_sample(
+            wpilib.RobotController.get_monotonic_time(), self.rotation()
+        )
 
     def raw_encoder_reading_(self) -> Rotation2d:
         """The encoder value before calibration is applied. Record this to fill in TurretCalibration."""
@@ -101,7 +104,7 @@ class ServoTurret:
         return self._history.sample(timestamp)
 
     def is_connected(self) -> bool:
-        return self.encoder.isConnected()
+        return self.encoder.is_connected()
 
     def wrap_into_range(self, turret_angle: float) -> float | None:
         wrapped = self.max_angle - ((self.max_angle - turret_angle) % math.tau)

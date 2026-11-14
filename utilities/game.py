@@ -3,12 +3,12 @@
 import dataclasses
 import typing
 
-import robotpy_apriltag
+import robotpy_fields
 import wpilib
 from wpimath import Pose2d, Pose3d
 
-apriltag_layout = robotpy_apriltag.AprilTagFieldLayout.loadField(
-    robotpy_apriltag.AprilTagField.k2026RebuiltWelded
+apriltag_layout = robotpy_fields.get_field(
+    robotpy_fields.FieldId.FRC_2026_REBUILT_WELDED
 )
 
 TagId = typing.Literal[
@@ -48,10 +48,10 @@ TagId = typing.Literal[
 
 get_fiducial_pose = typing.cast(
     typing.Callable[[TagId], Pose3d],
-    apriltag_layout.getTagPose,
+    apriltag_layout.get_tag_pose,
 )
 
-APRILTAGS = apriltag_layout.getTags()
+APRILTAGS = apriltag_layout.get_tags()
 
 
 @dataclasses.dataclass(slots=True)
@@ -61,7 +61,7 @@ class Tag2d:
 
 
 APRILTAGS_2D = [
-    Tag2d(typing.cast(TagId, tag.ID), tag.pose.toPose2d()) for tag in APRILTAGS
+    Tag2d(typing.cast(TagId, tag.id), tag.pose.to_pose2d()) for tag in APRILTAGS
 ]
 
 

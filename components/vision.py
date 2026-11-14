@@ -3,20 +3,19 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 import wpilib
-import wpiutil.log
 import wpiutil.wpistruct
 from magicbot import feedback, tunable, will_reset_to
 from photonlibpy import PhotonCamera, PhotonPoseEstimator
 from photonlibpy.targeting import MultiTargetPNPResult, PhotonPipelineResult
-from wpimath import units
-from wpimath.geometry import (
+from wpimath import (
     Rotation2d,
     Rotation3d,
+    TimeInterpolatableRotation2dBuffer,
     Transform2d,
     Transform3d,
     Translation3d,
+    units,
 )
-from wpimath.interpolation import TimeInterpolatableRotation2dBuffer
 
 from components.chassis import ChassisComponent
 from utilities.caching import HasPerLoopCache, cache_per_loop
@@ -89,7 +88,6 @@ class VisualLocalizer(HasPerLoopCache):
         # The camera pitch on the mount, relative to horizontal
         camera_pitch: float,
         field: wpilib.Field2d,
-        data_log: wpiutil.log.DataLog,
     ) -> None:
         super().__init__()
         self.camera = PhotonCamera(name)
@@ -99,7 +97,7 @@ class VisualLocalizer(HasPerLoopCache):
         self.last_mahalanobis = 0.0
 
         self.robot_to_turret = Transform3d(turret_pos, Rotation3d(turret_rot))
-        self.robot_to_turret_2d = Transform2d(turret_pos.toTranslation2d(), turret_rot)
+        self.robot_to_turret_2d = Transform2d(turret_pos.to_translation2d(), turret_rot)
         self.turret_to_camera = Transform3d(
             camera_offset, Rotation3d(roll=0.0, pitch=camera_pitch, yaw=0.0)
         )
@@ -107,10 +105,10 @@ class VisualLocalizer(HasPerLoopCache):
 
         self.estimator = PhotonPoseEstimator(apriltag_layout, Transform3d())
         self.last_timestamp = -1.0
-        self.best_log = field.getObject(name + "_best_log")
-        self.field_pos_obj = field.getObject(name + "_vision_pose")
+        self.best_log = field.get_object(name + "_best_log")
+        self.field_pos_obj = field.get_object(name + "_vision_pose")
 
-        self.turret_pose = field.getObject(name + "_turret_pose")
+        self.turret_pose = field.get_object(name + "_turret_pose")
         self.current_reproj = 0.0
         self.has_multitag = False
         self.has_seen_multitag = False
@@ -141,7 +139,7 @@ class VisualLocalizer(HasPerLoopCache):
         tags_in_view: list[VisibleTag] = []
 
         robot_pose = self.chassis.get_pose()
-        turret_pose = robot_pose.transformBy(self.robot_to_turret_2d)
+        turret_pose = robot_pose.transform_by(self.robot_to_turret_2d)
         turret_translation = turret_pose.translation()
         turret_rotation = turret_pose.rotation()
 
@@ -149,6 +147,7 @@ class VisualLocalizer(HasPerLoopCache):
             tag_pose = tag.pose
             turret_to_tag = tag_pose.translation() - turret_translation
             turret_angle_to_tag = turret_to_tag.angle()
+            assert turret_angle_to_tag is not None
             distance = turret_to_tag.norm()
             relative_facing = tag_pose.rotation() - turret_angle_to_tag
 
@@ -202,7 +201,9 @@ class VisualLocalizer(HasPerLoopCache):
 
     @feedback
     def sees_target(self) -> bool:
-        return wpilib.Timer.getFPGATimestamp() - self.last_timestamp < self.TIMEOUT
+        return (
+            wpilib.Timer.get_monotonic_timestamp() - self.last_timestamp < self.TIMEOUT
+        )
 
     def robot_to_camera(self, timestamp: float) -> Transform3d:
         turret_rotation = self.turret.rotation_at(timestamp)
@@ -222,18 +223,18 @@ class VisualLocalizer(HasPerLoopCache):
         self.turret.hold_full_range_()
 
     def execute(self) -> None:
-        loop_stamp = wpilib.Timer.getFPGATimestamp()
+        loop_stamp = wpilib.Timer.get_monotonic_timestamp()
         self.aim_turret()
         self.turret.update()
 
-        self.heading_buffer.addSample(loop_stamp, self.chassis.get_rotation())
+        self.heading_buffer.add_sample(loop_stamp, self.chassis.get_rotation())
 
         current_robot_to_cam = self.robot_to_camera(loop_stamp)
-        self.turret_pose.setPose(
+        self.turret_pose.set_pose(
             self.chassis.get_pose()
             + Transform2d(
-                current_robot_to_cam.translation().toTranslation2d(),
-                current_robot_to_cam.rotation().toRotation2d(),
+                current_robot_to_cam.translation().to_translation2d(),
+                current_robot_to_cam.rotation().to_rotation2d(),
             )
         )
 
@@ -307,7 +308,7 @@ class VisualLocalizer(HasPerLoopCache):
         self.has_multitag = is_multitag
         self.last_timestamp = timestamp
 
-        pose = pipeline_result.estimatedPose.toPose2d()
+        pose = pipeline_result.estimatedPose.to_pose2d()
         self.last_innovation = pose - self.chassis.get_pose()
 
         linear_odometry_std_devs, rotation_odometry_std_devs = (
@@ -319,8 +320,8 @@ class VisualLocalizer(HasPerLoopCache):
         stt = rotation_vision_uncertainty**2 + rotation_odometry_std_devs**2
 
         self.last_mahalanobis = math.sqrt(
-            self.last_innovation.X() ** 2 / sxx
-            + self.last_innovation.Y() ** 2 / syy
+            self.last_innovation.x**2 / sxx
+            + self.last_innovation.y**2 / syy
             + self.last_innovation.rotation().radians() ** 2 / stt
         )
 
@@ -333,8 +334,8 @@ class VisualLocalizer(HasPerLoopCache):
                 rotation_vision_uncertainty,
             ),
         )
-        self.field_pos_obj.setPose(pose)
-        self.best_log.setPose(pose)
+        self.field_pos_obj.set_pose(pose)
+        self.best_log.set_pose(pose)
 
     def aim_turret(self) -> None:
         desired = self.turret.clamp_angle(self.get_desired_turret_angle())
