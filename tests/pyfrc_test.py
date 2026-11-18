@@ -3,4 +3,4 @@
     to test basic functionality of just about any robot.
 '''
 
-from wpilib.testing.robot_tests import test_disabled
+from wpilib.testing.robot_tests import test_disabled, test_opmode  # noqa: F401
