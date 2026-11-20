@@ -11,6 +11,7 @@ from wpimath import Rotation2d, Translation3d
 from components.chassis import ChassisComponent
 from components.vision import VisualLocalizer
 from ids import DioChannel, ServoHubChannel
+from simulation.vision import VisionSim
 from swerves.potatobot import tuner_constants
 from utilities.scalers import rescale_js
 from utilities.servo import ServoCalibration, ServoTurret, TurretCalibration
@@ -88,6 +89,7 @@ class MyRobot(MagicRobot):
             self.chassis.drive_field(drive_x, drive_y, drive_z)
 
     def simulation_init(self) -> None:
+        self.vision_sim = VisionSim([self.port_vision])
         self.sim_loop_timer.reset()
 
     def simulation_periodic(self) -> None:
@@ -95,3 +97,4 @@ class MyRobot(MagicRobot):
         self.sim_loop_timer.reset()
 
         self.chassis.sim_periodic(tm_diff)
+        self.vision_sim.update(tm_diff, self.field.get_robot_pose())
