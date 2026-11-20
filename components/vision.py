@@ -208,7 +208,7 @@ class VisualLocalizer(HasPerLoopCache):
     def robot_to_camera(self, timestamp: float) -> Transform3d:
         turret_rotation = self.turret.rotation_at(timestamp)
         if turret_rotation is None:
-            return self.robot_to_turret
+            turret_rotation = self.turret.rotation()
 
         return (
             self.robot_to_turret
