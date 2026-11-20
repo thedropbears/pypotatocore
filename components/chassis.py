@@ -59,6 +59,8 @@ class ChassisComponent:
 
         self.telemetry = SwerveTelemetry(tuner_constants.speed_at_12_volts)
 
+        self.add_vision_measurement = self.phoenix_swerve.add_vision_measurement
+
     def setup(self) -> None:
         self.field_obj = self.field.get_object("fused_pose")
         self._initialise_pose()
@@ -127,18 +129,6 @@ class ChassisComponent:
 
     def stop(self) -> None:
         self.request = self.prepare_request(self.robot_request, 0.0, 0.0, 0.0)
-
-    def add_vision_measurement(
-        self,
-        vision_robot_pose: Pose2d,
-        timestamp: seconds,
-        vision_measurement_std_devs: tuple[float, float, float] | None = None,
-    ):
-        self.phoenix_swerve.add_vision_measurement(
-            vision_robot_pose,
-            timestamp,
-            vision_measurement_std_devs,
-        )
 
     def prepare_request(
         self,
