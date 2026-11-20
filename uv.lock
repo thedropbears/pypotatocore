@@ -291,13 +291,13 @@ version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "phoenix6" },
-    { name = "robotpy", extra = ["commands2"] },
+    { name = "robotpy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "phoenix6", specifier = "~=26.70a2" },
-    { name = "robotpy", extras = ["commands2"], specifier = "==2027.0.0a8" },
+    { name = "robotpy", specifier = "==2027.0.0a8" },
 ]
 
 [[package]]
@@ -353,11 +353,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/ed/82227370fbc67210d8a09d13121d5e878274fcbbe66e5ddbf0fe0b4a3b18/robotpy-2027.0.0a8-py3-none-any.whl", hash = "sha256:1946c55b6fe746467647c127f7a88bf3e23e8d1635c484d703ed76320b87d50e", size = 2046, upload-time = "2026-11-01T07:08:07.036Z" },
 ]
 
-[package.optional-dependencies]
-commands2 = [
-    { name = "robotpy-commands-v2" },
-]
-
 [[package]]
 name = "robotpy-cli"
 version = "2027.0.1b2"
@@ -365,17 +360,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/47/c7/0cf1fcb47cb35523e3274f4d0dc04f696656d66dc7d9fcacade4b60b70d8/robotpy_cli-2027.0.1b2.tar.gz", hash = "sha256:2700eec883a6bb834231f9cb44d9a6468f5f03edb11591ded5d01b27bce85ce9", size = 9107, upload-time = "2026-08-16T02:54:34.815Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/15/47/d371a02f11ba0830c42eb6d87720873410a27c26a90b8089d09ee7329916/robotpy_cli-2027.0.1b2-py3-none-any.whl", hash = "sha256:84b76655702ea1b54e4d1b0eebef3792f1606c67e5b98bf7db0ce02af210eb31", size = 9126, upload-time = "2026-08-16T02:54:33.628Z" },
-]
-
-[[package]]
-name = "robotpy-commands-v2"
-version = "2027.0.0a8"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "wpilib" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/7a/5919917b8ade11e700b9c43e8c9618904dc233dff8551789c1881ff630fa/robotpy_commands_v2-2027.0.0a8-py3-none-any.whl", hash = "sha256:c0d188f8ce0a83946582967c151355b4b480c3649e1cdc04a5696999bc52ef0f", size = 73224, upload-time = "2026-11-01T05:40:22.592Z" },
 ]
 
 [[package]]

@@ -13,7 +13,7 @@ robotpy_version = "2027.0.0a8"
 components = [
     # "all",
     # "apriltag",
-    "commands2",
+    # "commands2",
     # "cscore",
     # "romi",
     # "sim",
@@ -43,5 +43,5 @@ requires-python = ">=3.15,<3.16"
 
 dependencies = [
     "phoenix6~=26.70a2",
-    "robotpy[commands2]==2027.0.0a8"
+    "robotpy==2027.0.0a8"
 ]
