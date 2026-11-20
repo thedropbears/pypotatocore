@@ -25,6 +25,8 @@ class LocalizerSim:
         )
         self.camera_sim.setMaxSightRange(self.CAMERA_MAX_SIGHT_RANGE)
         world.addCamera(self.camera_sim, self._robot_to_camera())
+        self.camera_sim.enableRawStream(True)
+        self.camera_sim.enableDrawWireframe(True)
 
     def update(self, tm_diff: units.seconds) -> None:
         # Move the turret first, so the camera is placed where it is this loop.
