@@ -7,7 +7,7 @@ from wpilib import Field2d, Timer, XboxController
 
 from components.chassis import ChassisComponent
 from swerves.potatobot import tuner_constants
-from utilities.scalers import rescale_js
+from utilities.scalers import map_exponential
 
 
 class MyRobot(MagicRobot):
@@ -38,11 +38,9 @@ class MyRobot(MagicRobot):
         drive_speed = self.max_speed
         spin_rate = self.max_spin_rate
 
-        drive_x = -rescale_js(self.gamepad.get_left_y(), 0.05, 1.5) * drive_speed
-        drive_y = -rescale_js(self.gamepad.get_left_x(), 0.05, 1.5) * drive_speed
-        drive_z = (
-            -rescale_js(self.gamepad.get_right_x(), 0.1, exponential=2.0) * spin_rate
-        )
+        drive_x = -map_exponential(self.gamepad.get_left_y(), 1.5) * drive_speed
+        drive_y = -map_exponential(self.gamepad.get_left_x(), 1.5) * drive_speed
+        drive_z = -map_exponential(self.gamepad.get_right_x(), 2.0) * spin_rate
 
         local_driving = self.gamepad.get_right_bumper_button()
 

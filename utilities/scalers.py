@@ -23,18 +23,6 @@ def map_exponential(value: float, base: float) -> float:
     return math.copysign((base ** abs(value) - 1) / (base - 1), value)
 
 
-def rescale_js(value: float, deadzone: float, exponential: float = 1.5) -> float:
-    """Rescale a joystick input, applying a deadzone and exponential.
-
-    Args:
-        value: the joystick value, in the interval [-1, 1].
-        deadzone: the deadzone to apply.
-        exponential: the strength of the exponential to apply
-                     (i.e. how non-linear should the response be)
-    """
-    return map_exponential(apply_deadzone(value, deadzone), exponential)
-
-
 def scale_value(
     value: float,
     input_lower: float,
