@@ -250,8 +250,8 @@ wheels = [
 
 [[package]]
 name = "photonlibpy"
-version = "2027.0.0a8"
-source = { path = "/home/lucien/git/photonvision/photon-lib/py/dist/photonlibpy-2027.0.0a8-py3-none-any.whl" }
+version = "2027.0.0a3.dev95+gd39fbff63"
+source = { git = "https://github.com/photonvision/photonvision?subdirectory=photon-lib%2Fpy&rev=d39fbff63617da02be9b6f9919b807988758c260#d39fbff63617da02be9b6f9919b807988758c260" }
 dependencies = [
     { name = "numpy" },
     { name = "opencv-python", marker = "platform_machine != 'roborio'" },
@@ -260,20 +260,6 @@ dependencies = [
     { name = "robotpy-fields" },
     { name = "robotpy-wpimath" },
     { name = "wpilib" },
-]
-wheels = [
-    { filename = "photonlibpy-2027.0.0a8-py3-none-any.whl", hash = "sha256:0ec1bad98990e04f622099c13c4648048ef59a493584c8ee0e33351c1ee673d3" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "numpy", specifier = "~=2.3" },
-    { name = "opencv-python", marker = "platform_machine != 'roborio'" },
-    { name = "pyntcore", specifier = "==2027.0.0a8" },
-    { name = "robotpy-cscore", specifier = "==2027.0.0a8" },
-    { name = "robotpy-fields", specifier = "==2027.0.0a8" },
-    { name = "robotpy-wpimath", specifier = "==2027.0.0a8" },
-    { name = "wpilib", specifier = "==2027.0.0a8" },
 ]
 
 [[package]]
@@ -377,7 +363,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "phoenix6", specifier = "~=26.70a2" },
-    { name = "photonlibpy", path = "/home/lucien/git/photonvision/photon-lib/py/dist/photonlibpy-2027.0.0a8-py3-none-any.whl" },
+    { name = "photonlibpy", git = "https://github.com/photonvision/photonvision?subdirectory=photon-lib%2Fpy&rev=d39fbff63617da02be9b6f9919b807988758c260" },
     { name = "robotpy", specifier = "==2027.0.0a8" },
     { name = "robotpy-fields", specifier = "==2027.0.0a8" },
     { name = "robotpy-rev", specifier = "==2027.0.0a9" },
